@@ -1,10 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./DB/db.js";
-dotenv.config({}); // load environment variables
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+dotenv.config({}); // load environment variables
 const app = express();
 
 // Middleware to parse JSON request bodies
@@ -24,11 +24,12 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT || 4000;
 
-connectDB().then(() => {
+connectDB()
+  .then(() => {
     app.listen(PORT, () => {
-        console.log(`\nServer is running on port ${PORT}`);
+      console.log(`\nServer is running on port ${PORT}`);
     });
-}).catch((error) => {
+  })
+  .catch((error) => {
     console.log("MONGO-DB CONNECTION FAILED", error);
-});
-
+  });
