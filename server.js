@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./DB/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import userRouter from "./routes/user.route.js"
 
 dotenv.config({}); // load environment variables
 const app = express();
@@ -23,6 +24,10 @@ app.use(cors());
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 4000;
+
+//routes 
+
+app.use("/api/v1/user",userRouter)
 
 connectDB()
   .then(() => {
