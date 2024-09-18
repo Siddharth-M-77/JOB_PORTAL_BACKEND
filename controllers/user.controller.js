@@ -1,7 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
-import getDataUri from "../utils/dataURI.js";
 import cloudinary from "../utils/cloudinary.js";
+import jwt from "jsonwebtoken";
 import fs from "fs";
 
 export const userRegistration = async (req, res) => {
@@ -100,7 +100,7 @@ export const userLogin = async (req, res) => {
     }
 
     // Find the user and select the password field for comparison
-    const existingUser = await User.findOne({ email }).select('+password');
+    const existingUser = await User.findOne({ email }).select("+password");
 
     if (!existingUser) {
       return res.status(404).json({
@@ -119,10 +119,23 @@ export const userLogin = async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      message: "Login successfully 🤩🤩🤩",
-      success: true,
-    });
+    const token = jwt.sign(
+      { userId: existingUser._id },
+      process.env.SECRET_KEY,
+      { expiresIn: "1d" }
+    );
+
+    return res
+      .cookie("token", token, {
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 1 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        message: `Welcome back !! ${existingUser.fullName}`,
+        success: true,
+        existingUser,
+      });
   } catch (error) {
     console.log("Login Error:", error);
     return res.status(500).json({
@@ -132,3 +145,8 @@ export const userLogin = async (req, res) => {
   }
 };
 
+export const userLogout = async(req,res)=>{
+  res.cookie("token","",{maxAge:0}).status(200).json({
+    message:"Logout Successfully 🤞🤞🤞🤞"
+  })
+}
