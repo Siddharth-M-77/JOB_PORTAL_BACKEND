@@ -145,8 +145,74 @@ export const userLogin = async (req, res) => {
   }
 };
 
-export const userLogout = async(req,res)=>{
-  res.cookie("token","",{maxAge:0}).status(200).json({
-    message:"Logout Successfully 🤞🤞🤞🤞"
-  })
-}
+export const userLogout = async (req, res) => {
+  res.cookie("token", "", { maxAge: 0 }).status(200).json({
+    message: "Logout Successfully 🤞🤞🤞🤞",
+  });
+};
+
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullname, email, phoneNumber, bio, skills } = req.body;
+
+    const file = req.file;
+
+    // Check if file is uploaded
+    if (file) {
+      const localPath = file.path;
+      // Upload image to Cloudinary
+      const fileUri = getDataUri(localPath);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      // Delete the local file after uploading to Cloudinary
+      fs.unlinkSync(localPath);
+
+      // Prepare the resume URL and original name
+      const resumeUrl = cloudResponse.secure_url;
+      const resumeOriginalName = file.originalname;
+
+      // Resume data to be updated
+      req.body.profile = {
+        resume: resumeUrl,
+        resumeOriginalName: resumeOriginalName,
+      };
+    }
+
+    const userId = req.id; // middleware authentication
+    let user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+        success: false,
+      });
+    }
+
+    // Update user data
+    if (fullname) user.fullName = fullname;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (bio) user.profile.bio = bio;
+    if (skills) user.profile.skills = skills.split(",");
+
+    // Update resume data if provided
+    if (req.body.profile) {
+      user.profile.resume = req.body.profile.resume;
+      user.profile.resumeOriginalName = req.body.profile.resumeOriginalName;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile updated successfully.",
+      user,
+      success: true,
+    });
+  } catch (error) {
+    console.log("Update Profile Error:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      success: false,
+    });
+  }
+};

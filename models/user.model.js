@@ -16,9 +16,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
-      select: false,
+      select: false, // Excludes password field from query results
     },
-
     role: {
       type: String,
       enum: ["student", "recruiter"],
@@ -41,12 +40,6 @@ const userSchema = new mongoose.Schema(
       ],
       resume: {
         type: String, // URL for resume
-        validate: {
-          validator: function (v) {
-            return /^(ftp|http|https):\/\/[^ "]+$/.test(v); // Validates URL format
-          },
-          message: (props) => `${props.value} is not a valid URL!`,
-        },
       },
       resumeOriginalName: {
         type: String,
@@ -71,13 +64,15 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Hash password before saving the user
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, enteredPassword);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
+// Method to compare password
 userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
