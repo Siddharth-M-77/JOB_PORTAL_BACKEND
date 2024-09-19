@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import cloudinary from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import fs from "fs";
+import getDataUr from "../utils/dataURI.js"
+import path from "path";
 
 export const userRegistration = async (req, res) => {
   try {
@@ -157,13 +159,14 @@ export const updateProfile = async (req, res) => {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
     const file = req.file;
+    console.log(file);
+    
 
     // Check if file is uploaded
     if (file) {
       const localPath = file.path;
       // Upload image to Cloudinary
-      const fileUri = getDataUri(localPath);
-      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      const cloudResponse = await cloudinary.uploader.upload(localPath);
       // Delete the local file after uploading to Cloudinary
       fs.unlinkSync(localPath);
 
