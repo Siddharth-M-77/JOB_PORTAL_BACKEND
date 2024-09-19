@@ -1,54 +1,31 @@
-import Job from "../models/job.model.js";
+import { Job } from "../models/job.model.js";
 
 export const postJob = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      requirements,
-      salary,
-      location,
-      jobType,
-      experience,
-      position,
-      companyId,
-    } = req.body;
-    const userId = req.id;
-    if (
-      !title ||
-      !description ||
-      !requirements ||
-      !salary ||
-      !location ||
-      !jobType ||
-      !experience ||
-      !position ||
-      !companyId
-    ) {
+    const { title, description, requirements, salary, experience, location, jobType, position, companyId } = req.body;
+    
+    // Validate the required fields
+    if (!title || !description || !requirements || !salary || !experience || !location || !jobType || !position || !companyId) {
       return res.status(400).json({
-        message: "Somethin is missing.",
+        message: "All fields are required.",
         success: false,
       });
     }
-    const job = await Job.create({
-      title,
-      description,
-      requirements: requirements.split(","),
-      salary,
-      location,
-      jobType,
-      experienceLevel: experience,
-      position,
-      company: companyId,
-      created_by: userId,
-    });
-    return res.json({
-      message: "New job created successfully.",
-      job,
+
+    // Create a new job
+    const job = await Job.create({ title, description, requirements, salary, experience, location, jobType, position, companyId });
+
+    return res.status(201).json({
+      message: "Job posted successfully.",
       success: true,
+      job,
     });
   } catch (error) {
-    console.log("PostJob-Error", error);
+    console.error("Post Job Error:", error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+      success: false,
+    });
   }
 };
 // student k liye

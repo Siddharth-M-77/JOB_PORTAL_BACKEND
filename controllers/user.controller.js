@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import cloudinary from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import fs from "fs";
-import getDataUr from "../utils/dataURI.js"
 import path from "path";
+import deleteFile from "../utils/deleteFile.js";
 
 export const userRegistration = async (req, res) => {
+       let localPath = ""
   try {
     const { fullName, email, password, phoneNumber, role } = req.body;
 
@@ -31,7 +32,6 @@ export const userRegistration = async (req, res) => {
     }
 
     const localPath = req.file.path;
-    // console.log(localPath);
 
     // Upload image to Cloudinary
     const cloudinaryResponse = await cloudinary.uploader.upload(localPath, {
@@ -83,6 +83,11 @@ export const userRegistration = async (req, res) => {
     });
   } catch (error) {
     console.log("User Registration Error:", error);
+    if (localPath) {
+      deleteFile(localPath);
+
+    }
+
     return res.status(500).json({
       message: "Internal Server Error",
       success: false,
@@ -153,14 +158,12 @@ export const userLogout = async (req, res) => {
   });
 };
 
-
 export const updateProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
 
     const file = req.file;
     console.log(file);
-    
 
     // Check if file is uploaded
     if (file) {

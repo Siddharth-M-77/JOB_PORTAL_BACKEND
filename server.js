@@ -4,6 +4,8 @@ import connectDB from "./DB/db.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.route.js"
+import jobRouter from "./routes/job.route.js"
+import companyRouter from "./routes/company.routes.js"
 
 dotenv.config({}); // load environment variables
 const app = express();
@@ -28,6 +30,8 @@ const PORT = process.env.PORT || 4000;
 //routes 
 
 app.use("/api/v1/user",userRouter)
+app.use("/api/v1/job",jobRouter)
+app.use("/api/v1/company",companyRouter)
 
 connectDB()
   .then(() => {
