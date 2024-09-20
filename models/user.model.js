@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema(
         type: String,
         trim: true,
       },
+      otp: {
+        type: String,
+      },
+      otpExpiry: {
+        type: Date,
+      },
       company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
@@ -65,15 +71,20 @@ const userSchema = new mongoose.Schema(
 );
 
 // Hash password before saving the user
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+userSchema.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate();
+  console.log(update);
+  if (update.password) {
+    const salt = await bcrypt.genSalt(10);
+    update.password = await bcrypt.hash(update.password, salt);
+  }
   next();
 });
 
 // Method to compare password
 userSchema.methods.comparePassword = async function (password) {
+  console.log(password);
+  console.log(this.password);
   return await bcrypt.compare(password, this.password);
 };
 
