@@ -98,3 +98,53 @@ export const getAppliedJobs = async (req, res) => {
     });
   }
 };
+
+import mongoose from "mongoose";
+
+export const updateStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const applicationId = req.params.id;
+
+    // Check if status is provided
+    if (!status) {
+      return res.status(400).json({
+        message: "Status is required",
+        success: false,
+      });
+    }
+
+    // Validate if the applicationId is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(applicationId)) {
+      return res.status(400).json({
+        message: "Invalid application ID format.",
+        success: false,
+      });
+    }
+
+    // Find the application by application ID
+    const application = await Application.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({
+        message: "Application not found.",
+        success: false,
+      });
+    }
+
+    // Update the status (convert it to lowercase to maintain consistency)
+    application.status = status.toLowerCase();
+    await application.save();
+
+    return res.status(200).json({
+      message: "Status updated successfully.",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Server error",
+      success: false,
+      error: error.message,
+    });
+  }
+};
