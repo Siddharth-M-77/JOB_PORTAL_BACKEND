@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    otp: {
+      type: String,
+    },
+    otpExpiry: {
+      type: Date,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -44,12 +50,6 @@ const userSchema = new mongoose.Schema(
       resumeOriginalName: {
         type: String,
         trim: true,
-      },
-      otp: {
-        type: String,
-      },
-      otpExpiry: {
-        type: Date,
       },
       company: {
         type: mongoose.Schema.Types.ObjectId,

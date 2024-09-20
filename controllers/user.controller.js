@@ -233,65 +233,6 @@ export const updateProfile = async (req, res) => {
 };
 
 // Send OTP to email
-export const sendOtp = async (req, res) => {
-  // Configure your email service
-  const transporter = nodemailer.createTransport({
-    service: "gmail", // or your email provider
-    auth: {
-      user: process.env.EMAIL, // Your email
-      pass: process.env.EMAIL_PASSWORD, // Your email password
-    },
-  });
-  try {
-    const { email } = req.body;
-
-    // Check if email is provided
-    if (!email) {
-      return res.status(400).json({
-        message: "Email is required.",
-        success: false,
-      });
-    }
-
-    // Check if the user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({
-        message: "User with this email does not exist.",
-        success: false,
-      });
-    }
-
-    // Generate OTP
-    const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
-
-    // Set OTP and OTP expiration (e.g., 10 minutes) in the user's data
-    user.otp = otp;
-    user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes from now
-    await user.save();
-
-    // Send OTP via email
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: email,
-      subject: "Your OTP for Password Reset",
-      text: `Your OTP is ${otp}. It is valid for 10 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    return res.status(200).json({
-      message: "OTP has been sent to your email.",
-      success: true,
-    });
-  } catch (error) {
-    console.error("Send OTP Error:", error);
-    return res.status(500).json({
-      message: "Internal Server Error.",
-      success: false,
-    });
-  }
-};
 
 
 // Verify OTP and Reset Password
@@ -315,11 +256,24 @@ export const verifyOtpAndResetPassword = async (req, res) => {
         success: false,
       });
     }
+    console.log("otppp",user)
+
+    // Logging for debugging purposes
+    console.log("Stored OTP:", user.otp);
+    console.log("Stored OTP Expiry:", user.otpExpiry);
+    console.log("Current Time:", Date.now());
 
     // Check if the OTP is correct and not expired
-    if (user.otp !== otp || user.otpExpiry < Date.now()) {
+    if (user.otp !== otp) {
       return res.status(400).json({
-        message: "Invalid or expired OTP.",
+        message: "Invalid OTP.",
+        success: false,
+      });
+    }
+
+    if (user.otpExpiry < Date.now()) {
+      return res.status(400).json({
+        message: "OTP has expired.",
         success: false,
       });
     }
@@ -345,3 +299,73 @@ export const verifyOtpAndResetPassword = async (req, res) => {
     });
   }
 };
+
+
+
+export const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if email is provided
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required.",
+        success: false,
+      });
+    }
+
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        message: "User with this email does not exist.",
+        success: false,
+      });
+    }
+
+    // Generate OTP
+    const otp = crypto.randomInt(100000, 999999).toString(); // 6-digit OTP
+    console.log("Generated OTP:", otp); // Debugging
+
+    // Set OTP and OTP expiration (5 minutes) in the user's data
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 5 * 60 * 1000; // Expiry set to 5 minutes from now
+    await user.save();
+
+    // Debugging - Checking if OTP and Expiry are saved
+    console.log("Saved OTP:", user.otp); // Should log the saved OTP
+    console.log("Saved OTP Expiry:", user.otpExpiry); // Should log the saved OTP Expiry
+
+    // Nodemailer transporter setup for sending OTP via email
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Use Gmail SMTP service
+      auth: {
+        user: process.env.EMAIL, 
+        pass: process.env.EMAIL_PASSWORD, 
+      },
+    });
+
+    // Send OTP via email
+    const mailOptions = {
+      from: '"Job Portal" <no-reply@jobportal.com>', // Sender's name and email
+      to: email,
+      subject: "Your OTP for Password Reset",
+      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    return res.status(200).json({
+      message: "OTP has been sent to your email.",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Send OTP Error:", error);
+    return res.status(500).json({
+      message: "Internal Server Error.",
+      success: false,
+    });
+  }
+};
+
