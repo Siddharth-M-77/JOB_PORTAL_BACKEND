@@ -19,11 +19,25 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the "Public" directory
 app.use(express.static("Public"));
 
-// Enable Cross-Origin Resource Sharing with specific frontend origin
+// List of allowed origins, including local development and production
+const allowedOrigins = [
+  "http://localhost:5173", // Local development
+  "https://job-portal-frontend-topaz.vercel.app", // Production frontend
+];
+
 const corsOptions = {
-  origin: "https://job-portal-frontend-topaz.vercel.app",
-  credentials: true, // Allow cookies from this origin
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Allow credentials (cookies, tokens)
 };
+
+app.use(cors(corsOptions));
+
 app.use(cors(corsOptions));
 
 // Middleware to parse cookies
