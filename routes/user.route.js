@@ -21,7 +21,7 @@ router
   .post(isAuthenticated, upload.single("file"), updateProfile);
 
 // Route to send OTP
-router.post("/send-otp", isAuthenticated, sendOtp);
+router.post("/send-otp", sendOtp);
 
 // Route to verify OTP and reset password
 router.post(
