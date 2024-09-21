@@ -256,12 +256,11 @@ export const verifyOtpAndResetPassword = async (req, res) => {
         success: false,
       });
     }
-    console.log("otppp",user)
 
-    // Logging for debugging purposes
-    console.log("Stored OTP:", user.otp);
-    console.log("Stored OTP Expiry:", user.otpExpiry);
-    console.log("Current Time:", Date.now());
+    // // Logging for debugging purposes
+    // console.log("Stored OTP:", user.otp);
+    // console.log("Stored OTP Expiry:", user.otpExpiry);
+    // console.log("Current Time:", Date.now());
 
     // Check if the OTP is correct and not expired
     if (user.otp !== otp) {
