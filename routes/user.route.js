@@ -26,7 +26,6 @@ router.post("/send-otp", sendOtp);
 // Route to verify OTP and reset password
 router.post(
   "/verify-otp-reset-password",
-  isAuthenticated,
   verifyOtpAndResetPassword
 );
 
