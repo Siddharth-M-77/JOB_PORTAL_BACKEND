@@ -164,7 +164,6 @@ export const userLogin = async (req, res) => {
 export const userLogout = async (req, res) => {
   res.cookie("token", "", { maxAge: 0 }).status(200).json({
     message: "Logout Successfully 🤞🤞🤞🤞",
-    success: true,
   });
 };
 
@@ -235,6 +234,7 @@ export const updateProfile = async (req, res) => {
 
 // Send OTP to email
 
+
 // Verify OTP and Reset Password
 export const verifyOtpAndResetPassword = async (req, res) => {
   try {
@@ -257,6 +257,10 @@ export const verifyOtpAndResetPassword = async (req, res) => {
       });
     }
 
+    // // Logging for debugging purposes
+    // console.log("Stored OTP:", user.otp);
+    // console.log("Stored OTP Expiry:", user.otpExpiry);
+    // console.log("Current Time:", Date.now());
 
     // Check if the OTP is correct and not expired
     if (user.otp !== otp) {
@@ -294,6 +298,8 @@ export const verifyOtpAndResetPassword = async (req, res) => {
     });
   }
 };
+
+
 
 export const sendOtp = async (req, res) => {
   try {
@@ -333,8 +339,8 @@ export const sendOtp = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail", // Use Gmail SMTP service
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD,
+        user: process.env.EMAIL, 
+        pass: process.env.EMAIL_PASSWORD, 
       },
     });
 
@@ -361,3 +367,4 @@ export const sendOtp = async (req, res) => {
     });
   }
 };
+

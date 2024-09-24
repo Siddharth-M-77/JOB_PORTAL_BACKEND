@@ -4,6 +4,7 @@ const isAuthenticated = (req, res, next) => {
   try {
     // Retrieve the token from cookies
     const token = req.cookies.token;
+    
 
     if (!token) {
       return res

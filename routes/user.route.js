@@ -14,6 +14,7 @@ import {
 
 const router = Router();
 router.route("/register").post(upload.single("profilePhoto"), userRegistration);
+
 router.route("/login").post(userLogin);
 router.route("/logout").get(userLogout);
 router
@@ -24,9 +25,6 @@ router
 router.post("/send-otp", sendOtp);
 
 // Route to verify OTP and reset password
-router.post(
-  "/verify-otp-reset-password",
-  verifyOtpAndResetPassword
-);
+router.post("/verify-otp-reset-password", verifyOtpAndResetPassword);
 
 export default router;
