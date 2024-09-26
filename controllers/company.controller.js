@@ -11,8 +11,7 @@ import mongoose from "mongoose";
       const { name, description, location, website } = req.body;
 
       const userId = req.id; 
-      console.log(name,description)
-      console.log("user-iddd",userId)
+    
 
       // Check if required fields are present
       if (!name || !description) {
