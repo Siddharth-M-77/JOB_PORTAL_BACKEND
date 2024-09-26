@@ -122,10 +122,6 @@ export const userLogin = async (req, res) => {
 
     // Compare entered password with stored hashed password
     const passwordMatch = await existingUser.comparePassword(password);
-    console.log(
-      "Real hased password while login and fetch from DB",
-      passwordMatch
-    );
 
     if (!passwordMatch) {
       return res.status(401).json({
@@ -139,6 +135,7 @@ export const userLogin = async (req, res) => {
       process.env.SECRET_KEY,
       { expiresIn: "1d" }
     );
+    console.log(token)
 
     return res
       .cookie("token", token, {
