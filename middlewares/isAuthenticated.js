@@ -23,13 +23,15 @@ const isAuthenticated = (req, res, next) => {
           .json({ message: "Invalid token", success: false });
       }
 
-      // Attach user ID to request object
-      req.id = decoded?.userId; // Ensure userId exists in the token payload
-      if (!req.id) {
+      // Ensure userId exists in the token payload
+      if (!decoded || !decoded.userId) {
         return res
           .status(401)
           .json({ message: "Invalid token payload", success: false });
       }
+
+      // Attach user ID to request object
+      req.id = decoded.userId;
 
       next(); // Proceed to the next middleware
     });

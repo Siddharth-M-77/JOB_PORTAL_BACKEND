@@ -101,7 +101,6 @@ export const userRegistration = async (req, res) => {
 export const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Real password", password);
 
     if (!email || !password) {
       return res.status(400).json({
@@ -146,6 +145,7 @@ export const userLogin = async (req, res) => {
         httpOnly: true,
         sameSite: "strict",
         maxAge: 1 * 24 * 60 * 60 * 1000,
+        secure:false,
       })
       .json({
         message: `Welcome back !! ${existingUser.fullName}`,
