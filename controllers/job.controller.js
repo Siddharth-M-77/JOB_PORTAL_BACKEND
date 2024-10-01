@@ -2,10 +2,30 @@ import { Job } from "../models/job.model.js";
 
 export const postJob = async (req, res) => {
   try {
-    const { title, description, requirements, salary, experience, location, jobType, position, companyId } = req.body;
-    
+    const {
+      title,
+      description,
+      requirements,
+      salary,
+      experience,
+      location,
+      jobType,
+      position,
+      companyId,
+    } = req.body;
+
     // Validate the required fields
-    if (!title || !description || !requirements || !salary || !experience || !location || !jobType || !position || !companyId) {
+    if (
+      !title ||
+      !description ||
+      !requirements ||
+      !salary ||
+      !experience ||
+      !location ||
+      !jobType ||
+      !position ||
+      !companyId
+    ) {
       return res.status(400).json({
         message: "All fields are required.",
         success: false,
@@ -13,7 +33,17 @@ export const postJob = async (req, res) => {
     }
 
     // Create a new job
-    const job = await Job.create({ title, description, requirements, salary, experience, location, jobType, position, companyId });
+    const job = await Job.create({
+      title,
+      description,
+      requirements,
+      salary,
+      experience,
+      location,
+      jobType,
+      position,
+      companyId,
+    });
 
     return res.status(201).json({
       message: "Job posted successfully.",
@@ -114,7 +144,7 @@ export const getJobById = async (req, res) => {
 export const getAdminJobs = async (req, res) => {
   try {
     const adminId = req.id;
-    
+
     const jobs = await Job.find({ created_by: adminId }).populate({
       path: "company",
       createdAt: -1,

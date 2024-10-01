@@ -111,7 +111,7 @@ export const userLogin = async (req, res) => {
 
     // Find the user and select the password field for comparison
     const existingUser = await User.findOne({ email }).select("+password");
-    console.log("Alreday exist user password hashed", existingUser.password);
+    
 
     if (!existingUser) {
       return res.status(404).json({
@@ -254,11 +254,6 @@ export const verifyOtpAndResetPassword = async (req, res) => {
         success: false,
       });
     }
-
-    // // Logging for debugging purposes
-    // console.log("Stored OTP:", user.otp);
-    // console.log("Stored OTP Expiry:", user.otpExpiry);
-    // console.log("Current Time:", Date.now());
 
     // Check if the OTP is correct and not expired
     if (user.otp !== otp) {
