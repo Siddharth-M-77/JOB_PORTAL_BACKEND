@@ -167,68 +167,70 @@ export const userLogout = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { fullname, email, phoneNumber, bio, skills } = req.body;
-
+    const { fullName, email, phoneNumber, bio, skills } = req.body;
     const file = req.file;
-    console.log(file);
 
-    // Check if file is uploaded
+    // Initialize the object for updating fields
+    const updateFields = {};
+
+    // Handle file upload if present
     if (file) {
       const localPath = file.path;
-      // Upload image to Cloudinary
+
+      // Upload file to Cloudinary
       const cloudResponse = await cloudinary.uploader.upload(localPath);
-      // Delete the local file after uploading to Cloudinary
+
+      // Delete the file from local storage after uploading
       fs.unlinkSync(localPath);
 
-      // Prepare the resume URL and original name
-      const resumeUrl = cloudResponse.secure_url;
-      const resumeOriginalName = file.originalname;
-
-      // Resume data to be updated
-      req.body.profile = {
-        resume: resumeUrl,
-        resumeOriginalName: resumeOriginalName,
-      };
+      // Update resume URL and original file name
+      updateFields['profile.resume'] = cloudResponse.secure_url;
+      updateFields['profile.resumeOriginalName'] = file.originalname;
     }
 
-    const userId = req.id; // middleware authentication
-    let user = await User.findById(userId);
+    // Add provided data to updateFields object
+    if (fullName) updateFields.fullName = fullName;
+    if (email) updateFields.email = email;
+    if (phoneNumber) updateFields.phoneNumber = phoneNumber;
+    if (bio) updateFields['profile.bio'] = bio;
 
-    if (!user) {
+    // Handle skills - convert string to array if necessary
+    if (skills) {
+      updateFields['profile.skills'] = Array.isArray(skills)
+        ? skills
+        : skills.split(',').map(skill => skill.trim());
+    }
+
+    // Find and update user in the database
+    const userId = req.id; // From middleware authentication
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateFields }, // Update only the provided fields
+      { new: true, runValidators: true } // Return updated user, validate fields
+    );
+
+    // If the user doesn't exist
+    if (!updatedUser) {
       return res.status(404).json({
-        message: "User not found.",
+        message: 'User not found.',
         success: false,
       });
     }
 
-    // Update user data
-    if (fullname) user.fullName = fullname;
-    if (email) user.email = email;
-    if (phoneNumber) user.phoneNumber = phoneNumber;
-    if (bio) user.profile.bio = bio;
-    if (skills) user.profile.skills = skills.split(",");
-
-    // Update resume data if provided
-    if (req.body.profile) {
-      user.profile.resume = req.body.profile.resume;
-      user.profile.resumeOriginalName = req.body.profile.resumeOriginalName;
-    }
-
-    await user.save();
-
     return res.status(200).json({
-      message: "Profile updated successfully.",
-      user,
+      message: 'Profile updated successfully.',
+      user: updatedUser,
       success: true,
     });
   } catch (error) {
-    console.log("Update Profile Error:", error);
+    console.error('Update Profile Error:', error);
     return res.status(500).json({
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
       success: false,
     });
   }
 };
+
 
 // Send OTP to email
 
