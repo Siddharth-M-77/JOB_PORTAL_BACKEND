@@ -65,6 +65,7 @@ export const getAllJobs = async (req, res) => {
     // Example URL: /jobs?keyword=developer
     // If no keyword is provided, use an empty string as default
     const keyword = req.query.keyword || "";
+    console.log(keyword)
 
     // Create a query to search for jobs
     // The $or operator allows us to search in multiple fields (title and description)
@@ -82,7 +83,7 @@ export const getAllJobs = async (req, res) => {
     // Sorting the results by createdAt field in descending order (latest jobs first)
     const jobs = await Job.find(query)
       .populate({
-        path: "company", // This assumes each job has a reference to a company
+        path: "companyId", // This assumes each job has a reference to a company
       })
       .sort({ createdAt: -1 });
 
