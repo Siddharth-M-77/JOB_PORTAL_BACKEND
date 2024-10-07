@@ -3,8 +3,9 @@ import { Job } from "../models/job.model.js";
 
 export const applyJob = async (req, res) => {
   try {
-    const userId = req.id; // Extract the applicant's ID from the request
-    const jobId = req.params.id; // Extract the job ID from the request parameters
+    const userId = req.id; 
+    const jobId = req.params.id;
+    
 
     // Validate that a job ID is provided
     if (!jobId) {
@@ -44,7 +45,7 @@ export const applyJob = async (req, res) => {
 
     // Add the new application to the job's application list
     job.applications.push(newApplication._id);
-    await job.save(); // Save the job with the updated applications list
+    await job.save(); 
 
     // Respond with a success message
     return res.status(201).json({

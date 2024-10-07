@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 const isAuthenticated = (req, res, next) => {
   try {
     // Retrieve the token from cookies
-    const token = req.cookies?.token; // Check if cookies are available
+    const token = req.cookies.token;
+    console.log(token);
     if (!token) {
       return res
         .status(401)
@@ -13,7 +14,7 @@ const isAuthenticated = (req, res, next) => {
     // Verify the token
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
       if (err) {
-        if (err.name === 'TokenExpiredError') {
+        if (err.name === "TokenExpiredError") {
           return res
             .status(401)
             .json({ message: "Token expired", success: false });

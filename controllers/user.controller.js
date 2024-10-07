@@ -12,9 +12,7 @@ export const userRegistration = async (req, res) => {
   let localPath = "";
   try {
     const { fullName, email, password, phoneNumber, role } = req.body;
-    console.log("Registration time password", password);
 
-    // Check if any field is empty
     if (
       [fullName, email, password, phoneNumber, role].some(
         (field) => field.trim() === ""
@@ -40,7 +38,6 @@ export const userRegistration = async (req, res) => {
     const cloudinaryResponse = await cloudinary.uploader.upload(localPath, {
       folder: "user_photos",
     });
-    // console.log(cloudinaryResponse.public_id);
     // Delete the local file after uploading to Cloudinary
     fs.unlinkSync(localPath);
 
@@ -56,7 +53,6 @@ export const userRegistration = async (req, res) => {
 
     // Hash the password
     const hashPassword = await bcrypt.hash(password, 10);
-    console.log("Registration-time-hashed password", hashPassword);
 
     // Create new user
     const createdUser = await User.create({
