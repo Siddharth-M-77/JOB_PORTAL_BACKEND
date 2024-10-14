@@ -13,6 +13,7 @@ export const postJob = async (req, res) => {
       position,
       companyId,
     } = req.body;
+    console.log(req.body)
 
     // Validate the required fields
     if (

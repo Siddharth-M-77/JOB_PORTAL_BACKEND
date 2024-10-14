@@ -73,7 +73,7 @@ export const getAppliedJobs = async (req, res) => {
         path: "job",
         options: { sort: { createdAt: -1 } }, // Sort jobs by creation time
         populate: {
-          path: "company",
+          path: "companyId",
           options: { sort: { createdAt: -1 } }, // Sort companies by creation time
         },
       });

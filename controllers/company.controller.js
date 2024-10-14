@@ -67,23 +67,42 @@ export const registerCompany = async (req, res) => {
 
 export const getCompany = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.id; // Ensure this is coming from authenticated middleware
 
-    // Hum Company collection me search karenge, jaha userId match karta ho
-    const companies = await Company.findOne({ userId }); // findOne for a single company, use find if multiple
-
-    if (!companies) {
-      return res.status(404).json({
-        message: "No company found",
+    // Check if userId is present
+    if (!userId) {
+      return res.status(400).json({
+        message: "Invalid request, userId is required",
+        success: false,
       });
     }
+
+    // Fetching all companies associated with the userId
+
+    const companies = await Company.find({ userId }).lean();
+
+    // In Mongoose, lean() is a method that returns plain JavaScript objects instead of Mongoose documents, improving query performance by reducing memory usage and removing extra methods
+
+    // If no companies are found
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({
+        message: "No company found",
+        success: false,
+      });
+    }
+
+    // If companies are found
     return res.status(200).json({
-      companies,
+      message: "Companies retrieved successfully",
+      companies, // This will return an array of companies
       success: true,
     });
   } catch (error) {
-    console.log("Get-company-error:", error);
-    return res.status(500).json({ message: "Server error", error });
+    console.error("Get-company-error:", error);
+    return res.status(500).json({
+      message: "Server error occurred",
+      success: false,
+    });
   }
 };
 
