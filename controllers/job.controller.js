@@ -14,6 +14,7 @@ export const postJob = async (req, res) => {
       companyId,
     } = req.body;
     console.log(req.body)
+    const userId = req.id;
 
     // Validate the required fields
     if (
@@ -44,6 +45,7 @@ export const postJob = async (req, res) => {
       jobType,
       position,
       companyId,
+      created_by:userId
     });
 
     return res.status(201).json({
@@ -145,23 +147,33 @@ export const getJobById = async (req, res) => {
 // admin kitne job create kra hai abhi tk
 export const getAdminJobs = async (req, res) => {
   try {
-    const adminId = req.id;
+    const adminId = req.id; // Ensure you are getting this from the authenticated middleware
+    console.log("AdminId: ", adminId);
 
-    const jobs = await Job.find({ created_by: adminId }).populate({
-      path: "company",
-      createdAt: -1,
-    });
-    if (!jobs) {
+    // Fetch jobs created by the admin
+    const jobs = await Job.find({ createdBy: adminId }) // Ensure this field exists in the Job schema
+      .populate({
+        path: "companyId", // Populate with the correct field name
+        select: "name description location website logo", // Choose which fields you want to return
+      })
+      .sort({ createdAt: -1 }); // Sort jobs by creation date
+
+    if (!jobs || jobs.length === 0) {
       return res.status(404).json({
         message: "Jobs not found.",
         success: false,
       });
     }
+
     return res.status(200).json({
       jobs,
       success: true,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Get Admin Jobs Error:", error);
+    return res.status(500).json({
+      message: "Server error occurred",
+      success: false,
+    });
   }
 };
