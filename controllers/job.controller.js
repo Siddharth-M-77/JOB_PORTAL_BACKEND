@@ -98,7 +98,7 @@ export const getAllJobs = async (req, res) => {
       });
     }
     return res.status(200).json({
-      jobs, // This sends back the list of jobs
+      jobs, 
       success: true,
     });
   } catch (error) {
@@ -147,33 +147,36 @@ export const getJobById = async (req, res) => {
 // admin kitne job create kra hai abhi tk
 export const getAdminJobs = async (req, res) => {
   try {
-    const adminId = req.id; // Ensure you are getting this from the authenticated middleware
+    const adminId = req.id; // Assuming this is extracted from token or middleware
     console.log("AdminId: ", adminId);
 
     // Fetch jobs created by the admin
-    const jobs = await Job.find({ createdBy: adminId }) // Ensure this field exists in the Job schema
+    const jobs = await Job.find({ created_by: adminId }) 
+    // console.log(jobs)
       .populate({
-        path: "companyId", // Populate with the correct field name
-        select: "name description location website logo", // Choose which fields you want to return
+        path: "companyId", // Populate with the company ID field
       })
-      .sort({ createdAt: -1 }); // Sort jobs by creation date
+      .sort({ createdAt: -1 }); // Sort jobs by creation date (newest first)
 
+    // If no jobs are found
     if (!jobs || jobs.length === 0) {
       return res.status(404).json({
-        message: "Jobs not found.",
+        message: "No jobs found for this admin.",
         success: false,
       });
     }
 
+    // Successfully return jobs
     return res.status(200).json({
-      jobs,
+      jobs:jobs,
       success: true,
     });
   } catch (error) {
     console.error("Get Admin Jobs Error:", error);
     return res.status(500).json({
-      message: "Server error occurred",
+      message: "A server error occurred while fetching jobs.",
       success: false,
     });
   }
 };
+
