@@ -109,6 +109,7 @@ export const getCompany = async (req, res) => {
 export const getCompanyById = async (req, res) => {
   try {
     const companyId = req.params.id;
+    console.log(companyId)
 
     // Check if the companyId is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(companyId)) {
@@ -139,12 +140,14 @@ export const getCompanyById = async (req, res) => {
 };
 
 // Function to update company information
+
+
 export const updateCompany = async (req, res) => {
   try {
     const { name, description, website, location } = req.body;
     let logo; // Initialize logo variable for the new file URL
 
-    //cheak if file is uploaded
+    // Check if a file is uploaded
     if (req.file) {
       const localPath = req.file.path;
 
@@ -157,15 +160,23 @@ export const updateCompany = async (req, res) => {
       logo = cloudinaryResponse.secure_url;
 
       // Delete the file from the local system after successful upload
-      fs.unlink(localPath);
+      fs.unlink(localPath, (err) => {
+        if (err) {
+          console.error("Error deleting local file:", err);
+        } else {
+          console.log("Local file deleted successfully");
+        }
+      });
     }
+
     const updateData = { name, description, website, location };
+    
     // Add logo if a new one was uploaded
     if (logo) {
       updateData.logo = logo;
     }
-    // Find the company by ID and update with the new data
 
+    // Find the company by ID and update with the new data
     const company = await Company.findByIdAndUpdate(req.params.id, updateData, {
       new: true, // Return the updated company object
     });
@@ -177,15 +188,15 @@ export const updateCompany = async (req, res) => {
         success: false,
       });
     }
-    // Return success response with the updated company info
 
+    // Return success response with the updated company info
     return res.status(200).json({
       message: "Company information updated successfully.",
       company,
       success: true,
     });
   } catch (error) {
-    console.log("Error updating company:", error);
+    console.error("Error updating company:", error);
 
     // Return internal server error if something goes wrong
     return res.status(500).json({

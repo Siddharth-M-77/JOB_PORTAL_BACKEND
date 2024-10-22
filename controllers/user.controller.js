@@ -131,7 +131,6 @@ export const userLogin = async (req, res) => {
       process.env.SECRET_KEY,
       { expiresIn: "1d" }
     );
-    console.log(token)
 
     return res
       .cookie("token", token, {
@@ -167,7 +166,6 @@ export const updateProfile = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, bio, skills } = req.body;
     const file = req.file; // Uploaded file (if present)
-    console.log(file)
 
     // Initialize the object for updating fields
     const updateFields = {};
