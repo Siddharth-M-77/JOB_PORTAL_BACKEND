@@ -161,10 +161,13 @@ export const userLogout = async (req, res) => {
   });
 };
 
+
+
 export const updateProfile = async (req, res) => {
   try {
     const { fullName, email, phoneNumber, bio, skills } = req.body;
-    const file = req.file;
+    const file = req.file; // Uploaded file (if present)
+    console.log(file)
 
     // Initialize the object for updating fields
     const updateFields = {};
@@ -179,7 +182,7 @@ export const updateProfile = async (req, res) => {
       // Delete the file from local storage after uploading
       fs.unlinkSync(localPath);
 
-      // Update resume URL and original file name
+      // Update resume URL and original file name in updateFields object
       updateFields['profile.resume'] = cloudResponse.secure_url;
       updateFields['profile.resumeOriginalName'] = file.originalname;
     }
@@ -198,7 +201,7 @@ export const updateProfile = async (req, res) => {
     }
 
     // Find and update user in the database
-    const userId = req.id; // From middleware authentication
+    const userId = req.id; // Assuming user ID is available from middleware (authentication)
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateFields }, // Update only the provided fields
@@ -215,7 +218,7 @@ export const updateProfile = async (req, res) => {
 
     return res.status(200).json({
       message: 'Profile updated successfully.',
-      user:updatedUser,
+      user: updatedUser,
       success: true,
     });
   } catch (error) {

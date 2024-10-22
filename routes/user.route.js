@@ -19,7 +19,7 @@ router.route("/login").post(userLogin);
 router.route("/logout").get(userLogout);
 router
   .route("/profile/update")
-  .post(isAuthenticated, upload.single("file"), updateProfile);
+  .post(isAuthenticated, upload.single("resume"), updateProfile);
 
 // Route to send OTP
 router.post("/send-otp", sendOtp);
